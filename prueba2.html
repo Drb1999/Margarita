@@ -1,0 +1,487 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Una margarita para ti 🌼</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #faf9f5;
+      font-family: Georgia, serif;
+      color: #45443f;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 850px;
+      padding: 24px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: clamp(24px, 5vw, 36px);
+      font-weight: normal;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #89877f;
+      font-size: 15px;
+      margin-bottom: 20px;
+    }
+
+    .flower-area {
+      position: relative;
+      width: 100%;
+      min-height: 360px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .flower {
+      position: relative;
+      flex-shrink: 0;
+      width: min(80vw, 360px);
+      height: min(80vw, 360px);
+      transform-origin: center;
+      animation: sway 5s ease-in-out infinite;
+      transition: transform 1.5s ease-in-out;
+    }
+
+    .petal {
+      position: absolute;
+      width: 66px;
+      height: 112px;
+      left: calc(50% - 33px);
+      top: calc(50% - 56px);
+      border-radius: 50% 50% 45% 45%;
+      background: #fffefb;
+      border: 1px solid #e8e5dc;
+      box-shadow: 0 3px 10px rgba(70, 65, 50, 0.04);
+      cursor: pointer;
+      transform: rotate(var(--angle)) translateY(-74px);
+      transform-origin: center;
+      transition:
+        opacity 0.35s ease,
+        transform 0.35s ease,
+        background 0.2s ease;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      padding: 0;
+    }
+
+    .petal:hover {
+      background: #fff9df;
+    }
+
+    .petal:focus-visible {
+      outline: 3px solid #b5a16a;
+      outline-offset: 3px;
+    }
+
+    .petal.removed {
+      opacity: 0;
+      pointer-events: none;
+      transform:
+        rotate(var(--angle))
+        translateY(-135px)
+        scale(0.5);
+    }
+
+    .center {
+      position: absolute;
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      background: #e9c86e;
+      border: 5px solid #f2dfa1;
+      box-shadow: 0 3px 12px rgba(140, 110, 40, 0.12);
+      top: calc(50% - 39px);
+      left: calc(50% - 39px);
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+
+    .stem {
+      position: absolute;
+      height: 100px;
+      width: 7px;
+      background: #9caf88;
+      border-radius: 10px;
+      top: calc(50% + 25px);
+      left: calc(50% - 3px);
+      z-index: -1;
+    }
+
+    .leaf {
+      position: absolute;
+      width: 42px;
+      height: 20px;
+      background: #b6c5a4;
+      border-radius: 100% 0 100% 0;
+      top: calc(50% + 65px);
+      left: calc(50% + 2px);
+      transform: rotate(25deg);
+    }
+
+    /* Movimiento de la flor al finalizar */
+    .flower.bloomed {
+      transform: translateX(-30px) scale(0.9);
+      animation: finalSway 5s ease-in-out infinite;
+    }
+
+    /* Animación de florecimiento */
+    .flower.bloomed .petal {
+      animation: bloomPetal 1.2s ease-out forwards;
+    }
+
+    /* Dedicatoria */
+    .dedication {
+      opacity: 0;
+      transform: translateX(25px);
+      pointer-events: none;
+      max-width: 340px;
+      font-size: 16px;
+      line-height: 1.8;
+      text-align: left;
+      transition:
+        opacity 1.5s ease,
+        transform 1.5s ease;
+    }
+
+    .dedication.visible {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    .dedication p {
+      margin: 0 0 12px;
+    }
+
+    .counter {
+      font-size: 14px;
+      color: #99968c;
+      margin: 12px 0;
+    }
+
+    button.reset {
+      border: 1px solid #ded8c9;
+      background: #fffefb;
+      color: #5c594f;
+      border-radius: 30px;
+      padding: 12px 24px;
+      font-family: inherit;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button.reset:hover {
+      background: #f3eee2;
+    }
+
+    .message {
+      min-height: 65px;
+      font-size: 18px;
+      line-height: 1.6;
+      margin-top: 12px;
+      color: #777267;
+    }
+
+    /* Animaciones */
+    @keyframes sway {
+      0%, 100% {
+        transform: rotate(-1deg);
+      }
+
+      50% {
+        transform: rotate(1deg);
+      }
+    }
+
+    @keyframes finalSway {
+      0%, 100% {
+        rotate: -1deg;
+      }
+
+      50% {
+        rotate: 1deg;
+      }
+    }
+
+    @keyframes bloomPetal {
+      0% {
+        opacity: 0;
+        transform:
+          rotate(var(--angle))
+          translateY(-20px)
+          scale(0.1);
+      }
+
+      70% {
+        opacity: 1;
+        transform:
+          rotate(var(--angle))
+          translateY(-82px)
+          scale(1.08);
+      }
+
+      100% {
+        opacity: 1;
+        transform:
+          rotate(var(--angle))
+          translateY(-74px)
+          scale(1);
+      }
+    }
+
+    /* Adaptación para celulares */
+    @media (max-width: 600px) {
+      .flower-area {
+        flex-direction: column;
+        min-height: 520px;
+        gap: 0;
+      }
+
+      .flower.bloomed {
+        transform: translateY(-10px) scale(0.8);
+      }
+
+      .dedication {
+        text-align: center;
+        max-width: 330px;
+        font-size: 15px;
+        line-height: 1.7;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .petal {
+        width: 56px;
+        height: 96px;
+        left: calc(50% - 28px);
+        top: calc(50% - 48px);
+        transform: rotate(var(--angle)) translateY(-65px);
+      }
+
+      .petal.removed {
+        transform:
+          rotate(var(--angle))
+          translateY(-120px)
+          scale(0.5);
+      }
+
+      .center {
+        width: 68px;
+        height: 68px;
+        top: calc(50% - 34px);
+        left: calc(50% - 34px);
+      }
+
+      .stem {
+        top: calc(50% + 25px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="container">
+
+    <h1>Una margarita para ti 🌼</h1>
+
+    <p class="subtitle">
+      Quita los pétalos, uno por uno...
+    </p>
+
+    <div class="flower-area" id="flowerArea">
+
+      <div class="flower" id="flower">
+
+        <div class="stem"></div>
+        <div class="leaf"></div>
+
+        <button class="petal" style="--angle: 0deg"
+          aria-label="Quitar pétalo"></button>
+
+        <button class="petal" style="--angle: 45deg"
+          aria-label="Quitar pétalo"></button>
+
+        <button class="petal" style="--angle: 90deg"
+          aria-label="Quitar pétalo"></button>
+
+        <button class="petal" style="--angle: 135deg"
+          aria-label="Quitar pétalo"></button>
+
+        <button class="petal" style="--angle: 180deg"
+          aria-label="Quitar pétalo"></button>
+
+        <button class="petal" style="--angle: 225deg"
+          aria-label="Quitar pétalo"></button>
+
+        <button class="petal" style="--angle: 270deg"
+          aria-label="Quitar pétalo"></button>
+
+        <button class="petal" style="--angle: 315deg"
+          aria-label="Quitar pétalo"></button>
+
+        <div class="center">🌼</div>
+
+      </div>
+
+      <div class="dedication" id="dedication">
+
+        <p>
+          Como una margarita que alegra el jardín con su luz,
+        </p>
+
+        <p>
+          tu presencia en nuestra vida es un regalo sincero.
+        </p>
+
+        <p>
+          Gracias por tu cariño, tu apoyo y tu gran corazón;
+        </p>
+
+        <p>
+          guardar tu amistad es lo que más valoro y quiero.
+        </p>
+
+      </div>
+
+    </div>
+
+    <p class="counter" id="counter">
+      Pétalos restantes: 8
+    </p>
+
+    <div class="message" id="message">
+      ¿Me quieres? 🌼
+    </div>
+
+    <button class="reset" id="reset">
+      Volver a empezar
+    </button>
+
+  </main>
+
+  <script>
+
+    const petals = document.querySelectorAll(".petal");
+    const counter = document.getElementById("counter");
+    const message = document.getElementById("message");
+
+    const resetButton = document.getElementById("reset");
+    const flower = document.getElementById("flower");
+    const dedication = document.getElementById("dedication");
+
+    const finalMessage =
+      "Así como la margarita vuelve a florecer, deseo que nunca falten en tu vida motivos para sonreír!!";
+
+    let remaining = petals.length;
+    let finished = false;
+
+    // Interacción con los pétalos
+    petals.forEach((petal) => {
+
+      petal.addEventListener("click", () => {
+
+        if (petal.classList.contains("removed") || finished) {
+          return;
+        }
+
+        petal.classList.add("removed");
+
+        remaining--;
+
+        counter.textContent =
+          `Pétalos restantes: ${remaining}`;
+
+        if (remaining === 0) {
+
+          finished = true;
+
+          message.textContent =
+            "Espera... la magia apenas comienza 🌼";
+
+          counter.textContent =
+            "🌼 La margarita vuelve a florecer";
+
+          // Esperar antes de hacer florecer la margarita
+          setTimeout(() => {
+
+            // Reactivar todos los pétalos
+            petals.forEach((petal) => {
+              petal.classList.remove("removed");
+            });
+
+            // Activar la animación de florecimiento
+            flower.classList.add("bloomed");
+
+            // Mostrar el mensaje después de la floración
+            setTimeout(() => {
+
+              dedication.classList.add("visible");
+
+              message.textContent = finalMessage;
+
+            }, 1200);
+
+          }, 700);
+
+        } else {
+
+          message.textContent =
+            "Un pétalo menos... ❤️";
+
+        }
+
+      });
+
+    });
+
+    // Botón para reiniciar la experiencia
+    resetButton.addEventListener("click", () => {
+
+      petals.forEach((petal) => {
+        petal.classList.remove("removed");
+      });
+
+      flower.classList.remove("bloomed");
+      dedication.classList.remove("visible");
+
+      remaining = petals.length;
+      finished = false;
+
+      counter.textContent =
+        `Pétalos restantes: ${remaining}`;
+
+      message.textContent =
+        "¿Me quieres? 🌼";
+
+    });
+
+  </script>
+
+</body>
+</html>
